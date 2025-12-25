@@ -88,16 +88,14 @@ export function IdentityForm() {
 
   return (
     <>
-      <section className="relative z-20 flex min-h-[80vh] items-center justify-center px-4 pb-24 pt-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-nightCenter/20 to-nightBottom/40" />
-        <div className="relative z-10 mx-auto w-full max-w-3xl">
-          <motion.div
-            className="glass-card rounded-3xl px-6 py-8 shadow-2xl shadow-black/70 sm:px-10 sm:py-10"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-          >
+      <div className="relative z-10 mx-auto w-full max-w-3xl">
+        <motion.div
+          className="glass-card rounded-3xl px-6 py-8 shadow-2xl shadow-black/70 sm:px-10 sm:py-10"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
             <div className="mb-6 text-center">
               <p className="mb-2 text-xs uppercase tracking-[0.3em] text-slate-200/80">
                 🎄 Identify Yourself 🎄
@@ -190,7 +188,6 @@ export function IdentityForm() {
             </form>
           </motion.div>
         </div>
-      </section>
 
       <EnvelopeReveal
         visible={showEnvelope}

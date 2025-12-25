@@ -1,7 +1,7 @@
  "use client";
 
 import { Hero } from "@/components/Hero";
-import { IdentityForm } from "@/components/IdentityForm";
+import { IdentitySplineSection } from "@/components/IdentitySplineSection";
 import { Snowfall } from "@/components/Snowfall";
 import { useRef } from "react";
 
@@ -14,7 +14,7 @@ export default function Page() {
       <div className="relative z-20">
         <Hero scrollTargetRef={identifyRef} />
         <div ref={identifyRef}>
-          <IdentityForm />
+          <IdentitySplineSection />
         </div>
       </div>
     </main>

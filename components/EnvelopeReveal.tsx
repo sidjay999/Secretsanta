@@ -47,12 +47,12 @@ export function EnvelopeReveal({ visible, assignedTo, onClose }: EnvelopeRevealP
             exit={{ opacity: 0, y: 40 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            <p className="mb-4 text-sm uppercase tracking-[0.25em] text-slate-100/80">
+            <p className="mb-6 text-sm uppercase tracking-[0.25em] text-slate-100/80">
               ✉️ Envelope Reveal
             </p>
 
             <motion.div
-              className="relative h-56 w-full max-w-sm cursor-pointer rounded-3xl bg-gradient-to-b from-slate-100/15 via-slate-50/6 to-slate-50/3 p-[1px] shadow-glow-gold"
+              className="relative h-64 w-full max-w-sm cursor-pointer rounded-3xl bg-gradient-to-b from-slate-100/15 via-slate-50/6 to-slate-50/3 p-[1px] shadow-glow-gold"
               onClick={handleEnvelopeClick}
               initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -97,41 +97,62 @@ export function EnvelopeReveal({ visible, assignedTo, onClose }: EnvelopeRevealP
 
                 {/* Letter emerging */}
                 <motion.div
-                  className="relative z-20 mx-auto flex w-[80%] flex-col items-center rounded-2xl bg-slate-50/97 px-6 py-5 text-center shadow-[0_18px_35px_rgba(0,0,0,0.4)]"
-                  initial={{ y: 60, opacity: 0 }}
+                  className="relative z-20 mx-auto flex w-[82%] flex-col items-center rounded-2xl bg-gradient-to-br from-slate-50 via-white to-slate-50/95 px-8 py-8 text-center shadow-[0_20px_45px_rgba(0,0,0,0.45)]"
+                  initial={{ y: 70, opacity: 0 }}
                   animate={{
-                    y: opened ? -24 : 60,
+                    y: opened ? -28 : 70,
                     opacity: opened ? 1 : 0
                   }}
                   transition={{ delay: 0.3, duration: 0.55, ease: "easeOut" }}
                 >
-                  <p className="mb-1 text-xs font-medium tracking-[0.22em] text-slate-500 uppercase">
-                    Your Secret Santa Mission
-                  </p>
-                  <p className="mb-2 text-[0.65rem] font-semibold tracking-[0.3em] text-amber-600 uppercase">
-                    Confidential · For your eyes only
-                  </p>
-                  <p className="mt-4 text-xs text-slate-700">
-                    You are gifting to…
-                  </p>
-                  <p className="mt-2 text-xl font-semibold tracking-wide text-slate-900">
-                    {assignedTo ?? "A Mystery Friend"}
-                  </p>
-                  <p className="mt-3 text-[0.7rem] text-slate-500">
-                    Keep this between you and the winter night. No one else in your group will see this screen.
-                  </p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: opened ? 1 : 0, y: opened ? 0 : 10 }}
+                    transition={{ delay: 0.6, duration: 0.4 }}
+                  >
+                    <p className="mb-6 text-[0.65rem] font-medium tracking-[0.28em] text-amber-600/90 uppercase">
+                      Secret Santa Mission
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: opened ? 1 : 0, scale: opened ? 1 : 0.95 }}
+                    transition={{ delay: 0.75, duration: 0.45 }}
+                    className="space-y-3"
+                  >
+                    <p className="text-xs font-light tracking-wide text-slate-600">
+                      You are gifting to
+                    </p>
+                    <div className="my-4 h-px w-12 mx-auto bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+                    <p className="text-2xl font-semibold tracking-wide text-slate-900 leading-relaxed">
+                      {assignedTo ?? "A Mystery Friend"}
+                    </p>
+                  </motion.div>
+
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: opened ? 1 : 0 }}
+                    transition={{ delay: 0.95, duration: 0.4 }}
+                    className="mt-6 text-[0.68rem] leading-relaxed text-slate-500/90"
+                  >
+                    Keep this between you and the winter night
+                  </motion.p>
                 </motion.div>
               </div>
             </motion.div>
 
-            <p className="mt-6 text-[0.7rem] text-slate-200/80">
-              Tap outside the envelope to return to the winter night once you&apos;re ready.
-            </p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="mt-8 text-[0.7rem] text-slate-200/70"
+            >
+              Tap outside to return to the winter night
+            </motion.p>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
-
-
