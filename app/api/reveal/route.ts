@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, type MemberRecord } from "@/lib/firebaseAdmin";
 
+export const dynamic = "force-dynamic";
+
 const GROUPS_COLLECTION = "groups";
 
 export async function POST(req: NextRequest) {

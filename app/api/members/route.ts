@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, type MemberRecord } from "@/lib/firebaseAdmin";
 
+export const dynamic = "force-dynamic";
+
 const GROUPS_COLLECTION = "groups";
 
 export async function GET(req: NextRequest) {
@@ -27,7 +29,16 @@ export async function GET(req: NextRequest) {
 
   const members = Object.keys(data.members);
 
-  return NextResponse.json({ members });
+  return NextResponse.json(
+    { members },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0"
+      }
+    }
+  );
 }
 
 

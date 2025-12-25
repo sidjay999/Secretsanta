@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { EnvelopeReveal } from "./EnvelopeReveal";
 
@@ -18,10 +18,22 @@ export function IdentityForm() {
   const [code, setCode] = useState("");
   const [revealState, setRevealState] = useState<RevealState>({ status: "idle" });
   const [showEnvelope, setShowEnvelope] = useState(false);
+  
+  // Searchable dropdown state
+  const [nameSearchQuery, setNameSearchQuery] = useState("");
+  const [isNameDropdownOpen, setIsNameDropdownOpen] = useState(false);
+  const [filteredMembers, setFilteredMembers] = useState<string[]>([]);
+  const nameDropdownRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchGroups = async () => {
-      const res = await fetch("/api/groups");
+      const res = await fetch("/api/groups", {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache"
+        }
+      });
       const json = (await res.json()) as { groups: string[] };
       setGroups(json.groups ?? []);
     };
@@ -34,19 +46,60 @@ export function IdentityForm() {
     if (!group) {
       setMembers([]);
       setName("");
+      setNameSearchQuery("");
+      setFilteredMembers([]);
       return;
     }
     const fetchMembers = async () => {
-      const res = await fetch(`/api/members?group=${encodeURIComponent(group)}`);
+      const res = await fetch(`/api/members?group=${encodeURIComponent(group)}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache"
+        }
+      });
       const json = (await res.json()) as { members: string[] };
       setMembers(json.members ?? []);
       setName("");
+      setNameSearchQuery("");
+      setFilteredMembers(json.members ?? []);
     };
     fetchMembers().catch(() => {
       setMembers([]);
       setName("");
+      setNameSearchQuery("");
+      setFilteredMembers([]);
     });
   }, [group]);
+
+  // Filter members based on search query
+  useEffect(() => {
+    if (!nameSearchQuery.trim()) {
+      setFilteredMembers(members);
+    } else {
+      const query = nameSearchQuery.toLowerCase().trim();
+      const filtered = members.filter((member) =>
+        member.toLowerCase().includes(query)
+      );
+      setFilteredMembers(filtered);
+    }
+  }, [nameSearchQuery, members]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        nameDropdownRef.current &&
+        !nameDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsNameDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -130,22 +183,70 @@ export function IdentityForm() {
                   <label htmlFor="name" className="text-xs uppercase tracking-[0.18em] text-slate-200/80">
                     Your Name
                   </label>
-                  <select
-                    id="name"
-                    className="h-11 rounded-xl border border-white/15 bg-slate-900/40 px-3 text-sm text-slate-50 outline-none ring-0 transition focus:border-amberSoft/70 focus:bg-slate-900/70 focus:shadow-glow-teal disabled:cursor-not-allowed disabled:opacity-60"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    disabled={!group || members.length === 0}
-                  >
-                    <option value="">
-                      {group ? (members.length > 0 ? "Select your name" : "No unrevealed names") : "Select a group first"}
-                    </option>
-                    {members.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
+                  <div ref={nameDropdownRef} className="relative">
+                    <input
+                      ref={nameInputRef}
+                      id="name"
+                      type="text"
+                      value={nameSearchQuery}
+                      onChange={(e) => {
+                        setNameSearchQuery(e.target.value);
+                        setIsNameDropdownOpen(true);
+                        if (!e.target.value) {
+                          setName("");
+                        }
+                      }}
+                      onFocus={() => {
+                        if (members.length > 0) {
+                          setIsNameDropdownOpen(true);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && filteredMembers.length > 0) {
+                          e.preventDefault();
+                          const firstMatch = filteredMembers[0];
+                          setName(firstMatch);
+                          setNameSearchQuery(firstMatch);
+                          setIsNameDropdownOpen(false);
+                        } else if (e.key === "Escape") {
+                          setIsNameDropdownOpen(false);
+                          nameInputRef.current?.blur();
+                        }
+                      }}
+                      placeholder={
+                        !group
+                          ? "Select a group first"
+                          : members.length === 0
+                          ? "No unrevealed names"
+                          : "Search or select your name"
+                      }
+                      disabled={!group || members.length === 0}
+                      className="h-11 w-full rounded-xl border border-white/15 bg-slate-900/40 px-3 text-sm text-slate-50 outline-none ring-0 transition focus:border-amberSoft/70 focus:bg-slate-900/70 focus:shadow-glow-teal disabled:cursor-not-allowed disabled:opacity-60"
+                    />
+                    {isNameDropdownOpen && filteredMembers.length > 0 && (
+                      <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-white/15 bg-slate-900/95 backdrop-blur-lg shadow-2xl">
+                        {filteredMembers.map((member) => (
+                          <button
+                            key={member}
+                            type="button"
+                            onClick={() => {
+                              setName(member);
+                              setNameSearchQuery(member);
+                              setIsNameDropdownOpen(false);
+                            }}
+                            className="w-full px-3 py-2.5 text-left text-sm text-slate-50 transition hover:bg-slate-800/70 focus:bg-slate-800/70 focus:outline-none first:rounded-t-xl last:rounded-b-xl"
+                          >
+                            {member}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {isNameDropdownOpen && nameSearchQuery.trim() && filteredMembers.length === 0 && (
+                      <div className="absolute z-50 mt-1 w-full rounded-xl border border-white/15 bg-slate-900/95 backdrop-blur-lg px-3 py-2.5 text-sm text-slate-400">
+                        No matches found
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
